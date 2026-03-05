@@ -1,0 +1,12 @@
+{
+  "editor.inlineSuggest.enabled": true,
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "github.copilot.enable": true,
+  "github.copilot.inlineSuggest.enable": true,
+  "github.copilot.autocomplete": true
+}

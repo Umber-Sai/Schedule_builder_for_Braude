@@ -1,0 +1,260 @@
+
+
+class LessonsManager {
+
+    config = new Config();
+    lessons = [];
+    legendItems = [] 
+
+    constructor(calendarDays, legendEl) {
+        this.calendarDays = calendarDays;
+        this.legendEl = legendEl;
+    }
+     
+    render() {
+         //clean legend and calendar
+        this.legendEl.innerHTML = '';
+        for(let day of Object.keys(this.calendarDays)) this.calendarDays[day].innerHTML = '';
+
+        //legend items rendering
+        for (let item of this.legendItems) {
+            this.legendEl.appendChild(item.element);
+        }
+        
+        //lessons rendering
+        this.layeringControl();
+        for (let lesson of this.lessons) {
+            if(lesson.choosen) {
+                const name = lesson.name;
+                const type = lesson.type;
+
+                const lessonsByType = this.lessons.filter(lesson => lesson.name == name && lesson.type === type);
+                for (let lesson of lessonsByType) lesson.element.classList.add('transparent');
+
+                lesson.element.classList.add('clicked');
+            }
+            this.calendarDays[lesson.dayOfWeek].appendChild(lesson.element);
+        }
+
+       
+    }
+
+    add(data) {
+        console.log(data)
+        if (!data) return;
+        if (!Array.isArray(data)) data = [data];
+        for (let lessonsData of data) {
+            if (this.lessons.some(lesson => lesson.name === lessonsData.lessonName)) continue; //preventing duplicates
+
+            const item = new LegendItem(
+                lessonsData.lessonName, 
+                lessonsData.color, 
+                lessonsData.choosen ?? false, 
+                this.delete.bind(this));
+            this._itemEvents(item);
+            this.legendItems.push(item);
+
+            for (let LD of lessonsData.lessons) {
+                const lesson = new Lesson(
+                    lessonsData.lessonName,
+                    LD.dayOfWeek,
+                    LD.startAt,
+                    LD.endAt,
+                    LD.teacher,
+                    LD.classroom,
+                    LD.type,
+                    LD.group,
+                    LD.choosen ?? false,
+                    lessonsData.color,
+                );
+                this._lessonEvents(lesson);
+                this.lessons.push(lesson);
+            }
+        }
+    }
+
+    layeringControl() { //prototype
+        for (let day of this.config.days) {
+            const lessonsOfDay = this.lessons.filter(lesson => lesson.dayOfWeek === day);
+            lessonsOfDay.sort((a, b) => a.top - b.top); // Сортируем по началу урока
+
+            //split into groups by start time
+            const topVals = new Set(lessonsOfDay.map(lesson => lesson.top));
+            let groups = []
+            for (let val of topVals) {
+                let group = lessonsOfDay.filter(lesson => lesson.top === val);;
+                if (group.length > 1) groups.push(group);    
+            }
+            //compare groups by time and join if they intersect
+            for (let i = 0; i < groups.length; i++) {
+                const curentGroup = groups[i];
+                const nextGroup = groups[i + 1];
+                //if groups intersect by time
+                if (nextGroup && 
+                    curentGroup[0].bottom > nextGroup[0].top && curentGroup[0].top < nextGroup[0].top 
+                    || nextGroup && curentGroup[0].bottom === nextGroup[0].bottom
+                ) {
+                    groups[i] = curentGroup.concat(nextGroup);
+                    groups.splice(i + 1, 1);
+                    i--;
+                }
+                //setting width and right for lessons in group
+                const groupLength = curentGroup.length;
+                for (let i = 0; i < groupLength; i++) {
+                    curentGroup[i].element.style.width = 100 / groupLength + '%';
+                    curentGroup[i].element.style.right = (i * 100 / groupLength) + '%';
+                }
+            }
+        }
+    }
+
+    delete(lessonName) {
+        this.lessons = this.lessons.filter(lesson => lesson.name != lessonName);
+        this.legendItems = this.legendItems.filter(item => item.name != lessonName);
+        this.render();
+    }
+
+    pack() {
+        const packedLessons = [];
+        for (let item of this.legendItems) {
+            const lessonsData = this.lessons.filter(lesson => lesson.name === item.name);
+            if (lessonsData.length > 0) {
+                packedLessons.push({
+                    lessonName: item.name,
+                    lessons: lessonsData.map(lesson => ({
+                        dayOfWeek: lesson.dayOfWeek,
+                        startAt: lesson.startAt,
+                        endAt: lesson.endAt,
+                        teacher: lesson.teacher,
+                        classroom: lesson.classroom,
+                        type: lesson.type,
+                        group: lesson.group,
+                        choosen: lesson.choosen
+                    })),
+                    color: item.color,
+                });
+            }
+        }
+        return packedLessons;
+    }
+
+    _lessonEvents(lesson) {
+        const el = lesson.element;
+        const group = lesson.group;
+        const name = lesson.name;
+        const type = lesson.type;
+
+        //nover on
+        el.addEventListener('mouseover', (event) => {
+            el.classList.add('hover');
+            const lessonGroup = this.lessons.filter(lesson => lesson.name === name && lesson.group === group);
+            if(lessonGroup.length > 1) {
+                for (let lesson of lessonGroup) {
+                    lesson.element.classList.add('hover');
+                }
+            }
+        })
+
+        //hover out
+        el.addEventListener('mouseout', (event) => {
+            el.classList.remove('hover');
+            const lessonGroup = this.lessons.filter(lesson => lesson.name === name && lesson.group === group);
+            if(lessonGroup.length > 1) {
+                for (let lesson of lessonGroup) {
+                    lesson.element.classList.remove('hover');
+                }
+            }
+        })
+
+        //click
+        el.addEventListener('click', () => {
+            const typeGroup = this.lessons.filter(lesson => lesson.name === name && lesson.type === type);
+            const highlightGroup = typeGroup.filter(lesson => lesson.group === group);
+            //if was chosen
+            if (lesson.choosen) {
+                
+                for (let el of typeGroup) {
+                    el.element.classList.remove('transparent');
+                }
+
+                for (let lesson of highlightGroup) {
+                    lesson.element.classList.remove('clicked');
+                    lesson.choosen = false;
+                }
+            //if wasn't choosen
+            } else {
+                const highlightedGroup = typeGroup.filter(lesson => lesson.choosen);
+                //if there is other choosen 
+                if (highlightedGroup.length > 0) {
+                    for (let lesson of highlightedGroup) {
+                        lesson.element.classList.remove('clicked');
+                        lesson.choosen = false;
+                    }
+
+                    for (let lesson of highlightGroup) {
+                        lesson.element.classList.add('clicked');
+                        lesson.choosen = true;
+                    }
+                //if no one was choosen
+                } else {
+
+                    for (let el of typeGroup) {
+                        el.element.classList.add('transparent');
+                    }
+
+                    for (let lesson of highlightGroup) {
+                        lesson.element.classList.add('clicked');
+                        lesson.choosen = true;
+                    }
+
+                }
+            }  
+        })
+    }
+
+    _itemEvents(item) {
+        const el = item.element;
+        const name = item.name;
+
+
+        el.addEventListener('click', (event) => {
+
+            if(item.choosen) {
+                el.classList.remove('choosen');
+                item.choosen = false;
+                if(this.legendItems.some(item => item.choosen)) {
+                    const lessons = this.lessons.filter(lesson => lesson.name === name);
+                    for(let lesson of lessons) {
+                        lesson.element.classList.add('hidden');
+                    }
+                } else {
+                    const lessons = this.lessons.filter(lesson => lesson.name != name);
+                    for(let lesson of lessons) {
+                        lesson.element.classList.remove('hidden');
+                    }
+                }
+
+            } else {
+                el.classList.add('choosen');
+                if(this.legendItems.some(item => item.choosen)){
+                    const lessons = this.lessons.filter(lesson => lesson.name === name);
+                    for(let lesson of lessons) {
+                        lesson.element.classList.remove('hidden');
+                    }
+                } else {
+                    const lessons = this.lessons.filter(lesson => lesson.name != name);
+                    for(let lesson of lessons) {
+                        lesson.element.classList.add('hidden');
+                    }
+                }
+                item.choosen = true;
+            }
+            
+            
+
+        })
+    }
+}
+
+
+
