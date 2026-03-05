@@ -1,47 +1,48 @@
 # Schedule Calendar Extension
 
-Расширение для Chrome, которое извлекает расписание уроков со страниц и отображает их в визуальном календаре.
+A Chrome extension that extracts lesson schedules from web pages and displays them in a visual calendar.
 
-## Архитектура
+## Architecture
 
-Код разделён на модули (классы):
+The code is organized into modules (classes):
 
-- **`config.js`** — `CalendarConfig` — конфигурация, стили, маппинг дней недели
-- **`time-helper.js`** — `TimeHelper` — утилиты для работы со временем (HH:MM → число часов)
-- **`lesson.js`** — `Lesson` — модель урока с методом `toElement()` для создания DOM-элемента
-- **`lesson-parser.js`** — `LessonParser` — парсинг данных из таблицы на странице
-- **`calendar.js`** — `Calendar` — управление календарём, добавление/удаление уроков
-- **`content_script.js`** — главная точка входа, инициализация и заполнение календаря
+- **`main.js`** — main entry point, initialization and calendar population
+- **`config.js`** — `CalendarConfig` — configuration, styles, day mapping
+- **`calendar.js`** — `Calendar` — creates a calendar element
+- **`legend.js`** — `Legend` — creates a legend element with all added classes
+- **`lesson.js`** — `Lesson` — lesson model with with DOM element and all props
+- **`legend-item.js`** — `LegendItem` — legend item model with with DOM element and all props
+- **`page-parser.js`** — `PageParser` — parses class info from the page
 
-## Установка
+## Installation
 
-1. Откройте Chrome и перейдите на `chrome://extensions/`
-2. Включите **Developer mode**
-3. Нажмите **Load unpacked** и выберите папку `my-extension`
-4. Откройте страницу с расписанием — календарь появится в правом верхнем углу
+1. Open Chrome and navigate to `chrome://extensions/`
+2. Enable **Developer mode**
+3. Click **Load unpacked** and select the `my-extension` folder
+4. Open a page with a schedule — the calendar will appear in the upper right corner
 
-## Использование
+## Usage
 
-Расширение автоматически:
-- Находит все строки расписания (селектор `.TextAlignRight`)
-- Парсит данные: название, день, время начала/конца, преподавателя, кабинет
-- Отображает уроки на визуальной сетке по дням недели
+The extension automatically:
+- Finds all schedule rows (selector `.TextAlignRight`)
+- Parses data: lesson name, day, start/end time, teacher, classroom
+- Displays lessons on a visual grid organized by day of the week
 
-## Структура данных
+## Data Structure
 
-Каждый урок содержит:
-- `lessonName` — название урока
-- `dayName` — день на иврите (יום ראשון, יום שני и т.д.)
-- `startTime` — время начала (HH:MM)
-- `endTime` — время окончания (HH:MM)
-- `teacher` — преподаватель
-- `classroom` — кабинет
+Each lesson contains:
+- `lessonName` — lesson name
+- `dayName` — day in Hebrew (יום ראשון, יום שני, etc.)
+- `startTime` — start time (HH:MM)
+- `endTime` — end time (HH:MM)
+- `teacher` — teacher name
+- `classroom` — classroom number
 
-## Расширение кода
+## Extending the Code
 
-Чтобы добавить новый функционал:
+To add new functionality:
 
-1. **Добавить новый день или язык** — обновите `dayMap` в `CalendarConfig`
-2. **Изменить стили** — отредактируйте `getTemplateStyles()` в `CalendarConfig`
-3. **Изменить парсинг** — отредактируйте селекторы в `LessonParser` или `CalendarConfig`
-4. **Добавить функции к календарю** — расширьте класс `Calendar`
+1. **Add a new day or language** — update `dayMap` in `CalendarConfig`
+2. **Change styles** — edit `getTemplateStyles()` in `CalendarConfig`
+3. **Change parsing logic** — edit selectors in `LessonParser` or `CalendarConfig`
+4. **Add features to the calendar** — extend the `Calendar` class

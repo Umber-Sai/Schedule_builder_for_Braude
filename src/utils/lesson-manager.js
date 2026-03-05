@@ -24,6 +24,7 @@ class LessonsManager {
         //lessons rendering
         this.layeringControl();
         for (let lesson of this.lessons) {
+            //adding classes for choosen lesons
             if(lesson.choosen) {
                 const name = lesson.name;
                 const type = lesson.type;
@@ -75,34 +76,38 @@ class LessonsManager {
 
     layeringControl() { //prototype
         for (let day of this.config.days) {
+            console.log(day)
             const lessonsOfDay = this.lessons.filter(lesson => lesson.dayOfWeek === day);
             lessonsOfDay.sort((a, b) => a.top - b.top); // Сортируем по началу урока
-
-            //split into groups by start time
             const topVals = new Set(lessonsOfDay.map(lesson => lesson.top));
-            let groups = []
+
+            let groups = [] 
+
+            //splitting into groups by start time
             for (let val of topVals) {
-                let group = lessonsOfDay.filter(lesson => lesson.top === val);;
-                if (group.length > 1) groups.push(group);    
+                let group = lessonsOfDay.filter(lesson => lesson.top === val);
+                groups.push(Array.isArray(group)? group : [group]);  
+                console.log(groups)
             }
+
             //compare groups by time and join if they intersect
             for (let i = 0; i < groups.length; i++) {
-                const curentGroup = groups[i];
                 const nextGroup = groups[i + 1];
-                //if groups intersect by time
-                if (nextGroup && 
-                    curentGroup[0].bottom > nextGroup[0].top && curentGroup[0].top < nextGroup[0].top 
-                    || nextGroup && curentGroup[0].bottom === nextGroup[0].bottom
-                ) {
-                    groups[i] = curentGroup.concat(nextGroup);
+                const curentGroupBottom = Math.max(...groups[i].map(lesson => lesson.bottom));
+
+                if (nextGroup && curentGroupBottom > nextGroup[0].top) {
+                    groups[i] = groups[i].concat(nextGroup);
                     groups.splice(i + 1, 1);
                     i--;
-                }
-                //setting width and right for lessons in group
-                const groupLength = curentGroup.length;
+                }  
+            }
+
+            //splitting to subgroups
+            for(let group of groups) {
+               const groupLength = group.length;
                 for (let i = 0; i < groupLength; i++) {
-                    curentGroup[i].element.style.width = 100 / groupLength + '%';
-                    curentGroup[i].element.style.right = (i * 100 / groupLength) + '%';
+                    group[i].element.style.width = 100 / groupLength + '%';
+                    group[i].element.style.right = (i * 100 / groupLength) + '%';
                 }
             }
         }
@@ -218,7 +223,7 @@ class LessonsManager {
 
 
         el.addEventListener('click', (event) => {
-
+            console.log('item')
             if(item.choosen) {
                 el.classList.remove('choosen');
                 item.choosen = false;

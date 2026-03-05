@@ -13,7 +13,8 @@ class LegendItem {
         this.name = name;
         this.choosen = choosen
         this.element = this.makeElement();
-        this.deleteButton.addEventListener('click', () => {
+        this.deleteButton.addEventListener('click', (e) => {
+            e.stopPropagation();
             deleteFunc(this.name)
         })
     }
