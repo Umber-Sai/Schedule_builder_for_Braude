@@ -21,8 +21,8 @@ class Main {
         this.calendar.render(this.wrapper);
 
         //init scaler
-        let scale = this.localStorage.get(this.config.ls.calendarScale);
-        this.calendarScaler = new Scaler(this.calendar.element, scale)
+        const calendarSize = this.localStorage.get(this.config.ls.calendarSize);
+        new Scaler(this.calendar.element, calendarSize?.height, calendarSize?.width)
 
         //add data
         const lsData = this.localStorage.get(this.config.ls.lessonsData);
@@ -60,7 +60,7 @@ class Main {
         const saveData = () => {
             try {
                 this.localStorage.save(this.lessonsManager.pack(), this.config.ls.lessonsData);
-                this.localStorage.save(this.calendarScaler.scale(), this.config.ls.calendarScale)
+                this.localStorage.save(this.calendar.getSize(), this.config.ls.calendarSize)
             } catch (err) {
                 console.warn('Failed to save lesson data on page hide/unload', err);
             }

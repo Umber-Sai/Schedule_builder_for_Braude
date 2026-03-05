@@ -47,6 +47,11 @@ class Calendar {
 
     }
 
+    getSize() {
+        const rect = this.element.getBoundingClientRect();
+        return {height: rect.height, width: rect.width}
+    }
+
     
 
 }

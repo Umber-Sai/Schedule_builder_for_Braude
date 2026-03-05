@@ -4,7 +4,7 @@ class Config {
 
     ls = {
         lessonsData: 'lessonData',
-        calendarScale: 'calendarScale'
+        calendarSize: 'calendarScale'
     }
 
     days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -47,7 +47,7 @@ class Config {
         opacity: 0.5;
     }
     .clicked {
-        border: 10px solid red !important;
+        border: 5px solid red !important;
         z-index: 99999;
         opacity: 1 !important;
         box-sizing: border-box;
@@ -72,11 +72,9 @@ class Config {
     .${this.classes.calendar} {
         position: relative;
         top: 0px;
-        right: -100%;
-        translate: -100%;
+        right: 0px;
         display: flex;
         flex-direction: row-reverse;
-        width: ${this.wrapperWidth}px;
         user-select: none;
     }
 
@@ -90,19 +88,21 @@ class Config {
         text-align: center;
         background-color: #aeaeae;
         border: 1px solid black;
+        min-height: 20px;
+        height: 5%;
     }
 
     .${this.classes.dayCol}-body {
-        height: ${this.columnHeight}px;
         border: 1px solid black;
         background: repeating-linear-gradient(
-          0deg,
-          #dbdbdbff,
-          #dbdbdbff ${this.columnHeight / 12}px,
-          #e7e7e7ff ${this.columnHeight / 12}px,
-          #e7e7e7ff ${this.columnHeight / 6}px
-        );
+            to bottom,
+            #dbdbdbff 0%,
+            #dbdbdbff 8.33%,
+            #e7e7e7ff 8.33%,
+            #e7e7e7ff 16.66%
+            );
         position: relative;
+        flex-grow: 1;
     }
 
     .${this.classes.lesson} {
@@ -115,11 +115,11 @@ class Config {
 
     .big {
         font-weight: bold;
-        font-size: 40px;
+        font-size: 20px;
         text-align: center;
     }
     .small {
-        font-size: 20px;
+        font-size: 16px;
         line-height: 10px;
     }
 
@@ -195,3 +195,13 @@ class Config {
 
     constructor() {}
 }
+
+
+
+// repeating-linear-gradient(
+//           0deg,
+//           #dbdbdbff,
+//           #dbdbdbff ${this.columnHeight / 12}px,
+//           #e7e7e7ff ${this.columnHeight / 12}px,
+//           #e7e7e7ff ${this.columnHeight / 6}px
+//         );

@@ -2,29 +2,21 @@
 class Scaler {
     scalingObject;
     handleEl;
-    currentScaleX;
-    currentScaleY;
     height;
     width;
 
 
-    constructor(scalingObject, initScale = {x: 0.5, y: 0.5}) {
+    constructor(scalingObject, height = 700, width = 1000) {
         //init values
         this.scalingObject = scalingObject;
-        this.currentScaleX = initScale.x;
-        this.currentScaleY = initScale.y;
-
-        const rect = scalingObject.getBoundingClientRect();
-        this.height = rect.height;
-        this.width = rect.width;
+        this.height = height;
+        this.width = width
 
         this.handleEl = this.createElement();
 
         //adding styles and element
-        this.scalingObject.style.cssText = 'transform-origin: right top;';
-        this.scalingObject.style.transform = `
-                    scaleX(${this.currentScaleX})
-                    scaleY(${this.currentScaleY})`
+        this.scalingObject.style.transformOrigin = 'right top';
+        this.setSize()
 
         scalingObject.appendChild(this.handleEl)
     }
@@ -40,7 +32,12 @@ class Scaler {
             background-color: red;
             z-index: 1;
         `
-        let mousedown = false
+        this._handleEvents(el);
+        return el
+    }
+
+    _handleEvents(el) {
+        let isMouseDown = false
 
         let startX = 0;
         let offsetX = 0;
@@ -49,32 +46,39 @@ class Scaler {
         let offsetY = 0;
 
         el.addEventListener('mousedown', (e) => {
-            mousedown = true
+            isMouseDown = true
             startX = e.clientX;
             startY = e.clientY;
         });
 
         document.addEventListener('mousemove', (e) => {
-            if(mousedown) {
+            if(isMouseDown) {
                 offsetX = startX - e.clientX;
                 offsetY = startY - e.clientY;
 
                 this.scalingObject.style.transform = `
-                    scaleX(${this.currentScaleX + (offsetX / this.width)})
-                    scaleY(${this.currentScaleY - (offsetY / this.height)})`
+                    scaleX(${1 + (offsetX / this.width)})
+                    scaleY(${1 - (offsetY / this.height)})`
             }
         })
 
         document.addEventListener('mouseup', (e) => {
-            if(mousedown) {
+            if(isMouseDown) {
 
-                this.currentScaleX = this.currentScaleX + (offsetX / this.width);
-                this.currentScaleY = this.currentScaleY - (offsetY / this.height);
+                this.scalingObject.style.transform = ''
+                this.height = this.height * (1 - (offsetY / this.height));
+                this.width = this.width * (1 + (offsetX / this.width));
+                this.setSize()
+
             }
-            mousedown = false
+            isMouseDown = false
 
         })
-        return el
+    }
+
+    setSize() {
+        this.scalingObject.style.height = this.height + 'px';
+        this.scalingObject.style.width = this.width + 'px';
     }
 
     scale() {

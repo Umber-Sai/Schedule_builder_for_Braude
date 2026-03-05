@@ -24,6 +24,7 @@ class LessonsManager {
         //lessons rendering
         this.layeringControl();
         for (let lesson of this.lessons) {
+            lesson.appendTo(this.calendarDays[lesson.dayOfWeek])
             //adding classes for choosen lesons
             if(lesson.choosen) {
                 const name = lesson.name;
@@ -34,14 +35,12 @@ class LessonsManager {
 
                 lesson.element.classList.add('clicked');
             }
-            this.calendarDays[lesson.dayOfWeek].appendChild(lesson.element);
         }
 
        
     }
 
     add(data) {
-        console.log(data)
         if (!data) return;
         if (!Array.isArray(data)) data = [data];
         for (let lessonsData of data) {
@@ -76,7 +75,6 @@ class LessonsManager {
 
     layeringControl() { //prototype
         for (let day of this.config.days) {
-            console.log(day)
             const lessonsOfDay = this.lessons.filter(lesson => lesson.dayOfWeek === day);
             lessonsOfDay.sort((a, b) => a.top - b.top); // Сортируем по началу урока
             const topVals = new Set(lessonsOfDay.map(lesson => lesson.top));
@@ -87,7 +85,6 @@ class LessonsManager {
             for (let val of topVals) {
                 let group = lessonsOfDay.filter(lesson => lesson.top === val);
                 groups.push(Array.isArray(group)? group : [group]);  
-                console.log(groups)
             }
 
             //compare groups by time and join if they intersect
@@ -223,7 +220,6 @@ class LessonsManager {
 
 
         el.addEventListener('click', (event) => {
-            console.log('item')
             if(item.choosen) {
                 el.classList.remove('choosen');
                 item.choosen = false;
