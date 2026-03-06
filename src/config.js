@@ -8,7 +8,7 @@ class Config {
     }
 
     days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    colors = [ '#E6194B', '#3CB44B', '#4363D8', '#F58231', '#911EB4', '#F032E6', '#BCF60C', '#FABEBE', '#46F0F0'];
+    colors = [ '#3CB44B', '#4363D8', '#F58231', '#911EB4', '#F032E6', '#BCF60C', '#FABEBE', '#46F0F0', '#E6194B'];
 
     dayMap = {
       'יום ראשון': 'Sun',
@@ -110,7 +110,7 @@ class Config {
         width: 100%;
         overflow: hidden;
         user-select: none;
-        border: 1px solid #342418ff
+        border: 1px solid #342418ff;
     }
 
     .big {
@@ -129,24 +129,22 @@ class Config {
         justify-content: start;
         align-items: center;
         gap: 20px;
-        padding: 10px;
         position: relative;
-        top: 0;
-        right: 0;
+        margin-bottom: 20px;
     }
 
     .${this.classes.legendAddButton} {
         background-color: #2ecc71;
         color: white;
-        padding: 12px;
+        padding: 7px;
         box-sizing: border-box;
         text-align: center;
         cursor: pointer;
         width: 150px;
-        margin: 10px;
         user-select: none;
-        height: 50px;
+        height: 40px;
         border-radius: 25px;
+        box-shadow: 0px 0px 20px -10px #000000;
 
     }
 
@@ -169,9 +167,10 @@ class Config {
         padding: 10px;
         background-color: #fff;
         border: 1px solid #a4a4a4;
-        height: 50px;
+        height: 40px;
         border-radius: 25px;
-        box-shadow: 10px 10px 40px 0px #000000;
+        box-shadow: 0px 0px 20px -10px #000000;
+        cursor: pointer;
     }
 
     .${this.classes.legendItem}-color {

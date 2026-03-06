@@ -11,7 +11,7 @@ class LessonsManager {
         this.legendEl = legendEl;
     }
      
-    render() {
+    render(lessonGroup = this.lessons) {
          //clean legend and calendar
         this.legendEl.innerHTML = '';
         for(let day of Object.keys(this.calendarDays)) this.calendarDays[day].innerHTML = '';
@@ -22,22 +22,20 @@ class LessonsManager {
         }
         
         //lessons rendering
-        this.layeringControl();
-        for (let lesson of this.lessons) {
-            lesson.appendTo(this.calendarDays[lesson.dayOfWeek])
+        this.layeringControl(lessonGroup);
+        for (let lesson of lessonGroup) {
+            lesson.appendTo(this.calendarDays[lesson.dayOfWeek]);
             //adding classes for choosen lesons
             if(lesson.choosen) {
                 const name = lesson.name;
                 const type = lesson.type;
 
-                const lessonsByType = this.lessons.filter(lesson => lesson.name == name && lesson.type === type);
+                const lessonsByType = lessonGroup.filter(lesson => lesson.name == name && lesson.type === type);
                 for (let lesson of lessonsByType) lesson.element.classList.add('transparent');
 
                 lesson.element.classList.add('clicked');
             }
         }
-
-       
     }
 
     add(data) {
@@ -71,11 +69,13 @@ class LessonsManager {
                 this.lessons.push(lesson);
             }
         }
+        this.removeItemHighlights()
+        this.render()
     }
 
-    layeringControl() { //prototype
+    layeringControl(lessonGroup) {
         for (let day of this.config.days) {
-            const lessonsOfDay = this.lessons.filter(lesson => lesson.dayOfWeek === day);
+            const lessonsOfDay = lessonGroup.filter(lesson => lesson.dayOfWeek === day);
             lessonsOfDay.sort((a, b) => a.top - b.top); // Сортируем по началу урока
             const topVals = new Set(lessonsOfDay.map(lesson => lesson.top));
 
@@ -99,7 +99,7 @@ class LessonsManager {
                 }  
             }
 
-            //splitting to subgroups
+            //applying styles
             for(let group of groups) {
                const groupLength = group.length;
                 for (let i = 0; i < groupLength; i++) {
@@ -113,6 +113,7 @@ class LessonsManager {
     delete(lessonName) {
         this.lessons = this.lessons.filter(lesson => lesson.name != lessonName);
         this.legendItems = this.legendItems.filter(item => item.name != lessonName);
+        this.removeItemHighlights()
         this.render();
     }
 
@@ -138,6 +139,13 @@ class LessonsManager {
             }
         }
         return packedLessons;
+    }
+
+    removeItemHighlights () {
+        for(let item of this.legendItems) {
+            item.choosen = false
+            item.element.classList.remove('choosen');
+        }
     }
 
     _lessonEvents(lesson) {
@@ -220,36 +228,62 @@ class LessonsManager {
 
 
         el.addEventListener('click', (event) => {
+            //changing Item
             if(item.choosen) {
-                el.classList.remove('choosen');
-                item.choosen = false;
-                if(this.legendItems.some(item => item.choosen)) {
-                    const lessons = this.lessons.filter(lesson => lesson.name === name);
-                    for(let lesson of lessons) {
-                        lesson.element.classList.add('hidden');
-                    }
-                } else {
-                    const lessons = this.lessons.filter(lesson => lesson.name != name);
-                    for(let lesson of lessons) {
-                        lesson.element.classList.remove('hidden');
-                    }
-                }
-
+                item.choosen = false
+                el.classList.remove('choosen')
             } else {
-                el.classList.add('choosen');
-                if(this.legendItems.some(item => item.choosen)){
-                    const lessons = this.lessons.filter(lesson => lesson.name === name);
-                    for(let lesson of lessons) {
-                        lesson.element.classList.remove('hidden');
-                    }
-                } else {
-                    const lessons = this.lessons.filter(lesson => lesson.name != name);
-                    for(let lesson of lessons) {
-                        lesson.element.classList.add('hidden');
-                    }
-                }
                 item.choosen = true;
+                el.classList.add('choosen')
             }
+            //checking another chooden items
+            const choosenItems = this.legendItems.filter(item => item.choosen);
+            if(choosenItems.length > 0) {
+                let lessonGroup = []
+                for(let item of choosenItems) {
+                    const lessonsByName = this.lessons.filter(l => l.name === item.name)
+                    lessonGroup.push(...lessonsByName);
+                }
+                console.log(lessonGroup)
+                this.render(lessonGroup);
+            } else {
+                this.render()
+            }
+
+
+
+
+
+            // if(item.choosen) {
+            //     el.classList.remove('choosen');
+            //     item.choosen = false;
+            //     if(this.legendItems.some(item => item.choosen)) {
+            //         const lessons = this.lessons.filter(lesson => lesson.name === name);
+            //         for(let lesson of lessons) {
+            //             lesson.element.classList.add('hidden');
+            //         }
+            //     } else {
+            //         const lessons = this.lessons.filter(lesson => lesson.name != name);
+            //         for(let lesson of lessons) {
+            //             lesson.element.classList.remove('hidden');
+            //         }
+            //     }
+
+            // } else {
+            //     el.classList.add('choosen');
+            //     if(this.legendItems.some(item => item.choosen)){
+            //         const lessons = this.lessons.filter(lesson => lesson.name === name);
+            //         for(let lesson of lessons) {
+            //             lesson.element.classList.remove('hidden');
+            //         }
+            //     } else {
+            //         const lessons = this.lessons.filter(lesson => lesson.name != name);
+            //         for(let lesson of lessons) {
+            //             lesson.element.classList.add('hidden');
+            //         }
+            //     }
+            //     item.choosen = true;
+            // }
             
             
 

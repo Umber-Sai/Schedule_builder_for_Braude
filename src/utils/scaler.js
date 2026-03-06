@@ -27,10 +27,10 @@ class Scaler {
             position: absolute;
             left: 0;
             bottom: 0;
-            height: 100px;
-            width: 100px;
-            background-color: red;
+            height: 50px;
+            width: 50px;
             z-index: 1;
+            cursor: nesw-resize;
         `
         this._handleEvents(el);
         return el
@@ -79,18 +79,5 @@ class Scaler {
     setSize() {
         this.scalingObject.style.height = this.height + 'px';
         this.scalingObject.style.width = this.width + 'px';
-    }
-
-    scale() {
-        return {
-            x:this.currentScaleX,
-            y:this.currentScaleY
-        }
-    }
-
-
-
-   
-
-    
+    } 
 }

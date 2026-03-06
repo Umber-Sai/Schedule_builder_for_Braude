@@ -24,10 +24,9 @@ class Main {
         const calendarSize = this.localStorage.get(this.config.ls.calendarSize);
         new Scaler(this.calendar.element, calendarSize?.height, calendarSize?.width)
 
-        //add data
+        //add data and rendering
         const lsData = this.localStorage.get(this.config.ls.lessonsData);
         this.lessonsManager.add(lsData);
-        this.lessonsManager.render();
 
         // realise activation by button
         this.legend.addButton.addEventListener('click', () => {
@@ -38,7 +37,6 @@ class Main {
                 const color = this.config.colors.find(color => !currentColors.includes(color));
 
                 this.lessonsManager.add([{ ...parsedPage, color: color }]); 
-                this.lessonsManager.render(this.calendar.dayBodyElements);
             }
         });
 
